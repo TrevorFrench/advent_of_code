@@ -1,33 +1,33 @@
-library(tokenizers)
-library(stopwords)
-library(dplyr)
-library(readr)
-
-read_files <- function(input) {
-  setwd(input)
-  files <- list.files(pattern="*.txt")
-  df <- data.frame(matrix(nrow = 0, ncol = 2))
-  colnames(df) <- c('tokens', 'values')
-  for (file in files) {
-    corpus <- read_file(file)
-    tokens <- tokenize_words(corpus, stopwords = stopwords("en"))
-    token_table <- table(tokens)
-    list_temp <- c()
-    list_temp[[ file ]] <- token_table
-    df1 <- data.frame(list_temp)
-    colnames(df1) <- c('tokens', file)
-    df <- merge(x = df, y = df1, by = "tokens", all = TRUE)
-  }
-  return(df)
+# PART I
+corpus <- readr::read_file('2023/input.txt')
+tokens <- tokenizers::tokenize_words(corpus)[[1]]
+decode <- function(tkn) {
+  num_tkn <- stringr::str_extract_all(tkn, "\\d")[[1]]
+  as.integer(paste0(num_tkn[1], num_tkn[length(num_tkn)]))
 }
+sum(sapply(tokens, decode))
 
-index <- read_files('~/corpus')
+# PART II
+replacements <- c('1','2','3','4','5','6','7','8','9')
+pattern <- c('one','two','three','four','five','six','seven','eight','nine')
+names(replacements) <- pattern
+search <- append(replacements, pattern)
+corpus <- readr::read_file('2023/input.txt')
+tokens <- tokenizers::tokenize_words(corpus)[[1]]
 
-search_files <- function(query, index) {
-  df <- index[index$tokens == query, ]
-  return(df[1,])
+decode <- function(tkn) {
+  tkn <- gsub('eightwo','eighttwo', tkn)
+  tkn <- gsub('eighthree','eightthree', tkn)
+  tkn <- gsub('sevenine','sevennine', tkn)
+  tkn <- gsub('oneight','oneeight', tkn)
+  tkn <- gsub('twone','twoone', tkn)
+  tkn <- gsub('threeight','threeeight', tkn)
+  tkn <- gsub('fiveight','fiveeight', tkn)
+  tkn <- gsub('nineight','nineeight', tkn)
+  extract <<- unlist(stringr::str_extract_all(tkn, paste(search, collapse = "|")))
+  nums <<- stringr::str_replace_all(extract, replacements)
+  as.integer(paste0(nums[1], nums[length(nums)]))
 }
+sum(sapply(tokens, decode))
 
-search <- search_files('test1', index)
-
-xy.list <- setNames(split(search, seq(nrow(search))), rownames(search))
+#53868
